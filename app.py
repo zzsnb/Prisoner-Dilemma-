@@ -66,7 +66,8 @@ class Whole_game(): # 整个大局游戏的逻辑放在这里。
             "r2": strategies.retaliate2,       # Tit-for-2Tat
             "rd": strategies.totalrandom,           # 随机
             "jd": strategies.judas,
-            "w": strategies.win_stay_lose_shift
+            "w": strategies.win_stay_lose_shift,
+            "rp": strategies.reputation
         }
 
         while True:
@@ -78,7 +79,8 @@ class Whole_game(): # 整个大局游戏的逻辑放在这里。
                             + "R2 for Tit-for-2Tat\n"
                             + "RD for random\n"
                             + "JD for Judas(cooperate when winning and betray when losing)\n"
-                            + "W for win-stay-lose-shift\n").strip().lower()
+                            + "W for win-stay-lose-shift\n"
+                            + "RP for reputation(decide by the history of the opponent)\n").strip().lower()
             
             # 检查用户输入是否有效
             if user_input in strategy_map:
@@ -131,6 +133,7 @@ class A_game(): # 一局两个人的游戏的逻辑放在这里
         It executes with 2 participants' strategy and judge the game point.
         It returns nothing.
         """
+        self.game_record["the_number_of_round"] += 1
         self.game_record["history"].append((player1_decision, player2_decision))
         utility = round_judgement(utility_table, player1_decision, player2_decision)
         self.game_record["player1_point"] += utility[0]

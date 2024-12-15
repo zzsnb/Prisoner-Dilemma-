@@ -96,7 +96,6 @@ def judas(*args):
         return False
     
 def win_stay_lose_shift(*args):
-    """not finished"""
     """
     a strategy starts with cooperate, shift if gain less, otherwise stay.
     """
@@ -116,3 +115,24 @@ def win_stay_lose_shift(*args):
         else:
             print(not last_decision)
             return not last_decision
+        
+def grim_trigger(*args):
+    pass
+
+def reputation(*args):
+    """
+    A strategy that decide with the history of the opponent.
+    If there are more betrayal, i betray, otherwise cooperate.
+    """
+    game_record = args[0]
+    isplayer0or1 = args[1]
+    
+    cooperate_times = sum(1 for player0, player1 in game_record["history"] 
+                      if (player0 if isplayer0or1 == 1 else player1) == True)
+    betray_times = game_record["the_number_of_round"] - cooperate_times
+    if cooperate_times >= betray_times:
+        print(cooperate_times,betray_times)
+        return True
+    else:
+        print(cooperate_times,betray_times)
+        return False
