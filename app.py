@@ -56,35 +56,7 @@ class Whole_game(): # 整个大局游戏的逻辑放在这里。
         }
         # Done! But not yet call simple game.
     
-    def choose_strategy(name): # 如果增加了新的策略，那么策略函数这里必须要更改。
-        '''
-        while True:
-            user_input = input("Please choose the strategy for {name}.\n" # if there are other strategies, here should be changed
-                            + "B for always betray\n"
-                            + "C for always cooperate\n"
-                            + "T for choosing turn by turn\n"
-                            + "R for Tit-for-Tat\n"
-                            + "R2 for Tit-for-2Tat\n"
-                            + "RD for random\n").strip().lower()
-            if user_input in ["c", "b", "t", "r", "r2", "rd"]: # if there are other strategies, here should be changed
-                break
-            else:
-                print("Invalid input, there are no this kinds of stragetegy.")
-
-        match user_input:# if there are other strategies, here should be changed
-            case "c":
-                return strategies.cooperate
-            case "b":
-                return strategies.betray
-            case "t":
-                return strategies.select_every_turn
-            case "r":
-                return strategies.retaliate
-            case "r2":
-                return strategies.retaliate2
-            case "rd":
-                return strategies.random
-        '''
+    def choose_strategy(name):
     # 定义一个策略映射字典，键为用户输入的选项，值为相应的策略函数
         strategy_map = {
             "c": strategies.cooperate,         # 始终合作
