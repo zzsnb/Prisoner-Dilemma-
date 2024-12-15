@@ -1,6 +1,7 @@
 """Here have differents kinds of strategies"""
 
 import random
+from app import utility_table, round_judgement
 
 def cooperate(*args):
     return True
@@ -103,4 +104,15 @@ def win_stay_lose_shift(*args):
     if len(game_record["history"]) < 2:
         return True
     else:
-        pass 
+        isplayer0or1 = args[1]
+        last_game_record = game_record["history"][-1]
+        lastlast_game_record = game_record["history"][-2]
+        last_gain = round_judgement(utility_table, last_game_record[0], last_game_record[1])[isplayer0or1]
+        lastlast_gain = round_judgement(utility_table, lastlast_game_record[0], lastlast_game_record[1])[isplayer0or1]
+
+        last_decision = last_game_record[isplayer0or1]
+        if last_gain >= lastlast_gain and last_gain != 0:
+            return last_decision
+        else:
+            print(not last_decision)
+            return not last_decision

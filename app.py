@@ -3,6 +3,13 @@
 # I set True for cooperate, False for betray.
 import strategies 
 
+utility_table = {
+    "cooperate for betray": 0,
+    "betray for cooperate": 5,
+    "cooperate for cooperate": 3,
+    "betray for betray": 1
+}
+
 class Prisoner():
     """
     建构器，创建玩家对象（罪犯）。
@@ -86,7 +93,8 @@ class Whole_game(): # 整个大局游戏的逻辑放在这里。
             "r": strategies.retaliate,         # 以牙还牙
             "r2": strategies.retaliate2,       # Tit-for-2Tat
             "rd": strategies.totalrandom,           # 随机
-            "jd": strategies.judas
+            "jd": strategies.judas,
+            "w": strategies.win_stay_lose_shift
         }
 
         while True:
@@ -97,7 +105,8 @@ class Whole_game(): # 整个大局游戏的逻辑放在这里。
                             + "R for Tit-for-Tat\n"
                             + "R2 for Tit-for-2Tat\n"
                             + "RD for random\n"
-                            + "JD for Judas(cooperate when winning and betray when losing)\n").strip().lower()
+                            + "JD for Judas(cooperate when winning and betray when losing)\n"
+                            + "W for win-stay-lose-shift\n").strip().lower()
             
             # 检查用户输入是否有效
             if user_input in strategy_map:
@@ -130,12 +139,6 @@ class A_game(): # 一局两个人的游戏的逻辑放在这里
             "player1_point": player1.point,
             "player2_point": player2.point, # 之所以这个字典里还要存一遍双方目前分数，是为了给strategy函数传递。
         }
-        self.utility_table = {
-            "cooperate for betray": 0,
-            "betray for cooperate": 5,
-            "cooperate for cooperate": 3,
-            "betray for betray": 0
-        }
 
     def play(self):
         """
@@ -157,7 +160,7 @@ class A_game(): # 一局两个人的游戏的逻辑放在这里
         It returns nothing.
         """
         self.game_record["history"].append((player1_decision, player2_decision))
-        utility = self.round_judgement(player1_decision, player2_decision)
+        utility = round_judgement(utility_table, player1_decision, player2_decision)
         self.game_record["player1_point"] += utility[0]
         self.game_record["player2_point"] += utility[1]
         self.player1.point += utility[0]
@@ -178,23 +181,23 @@ class A_game(): # 一局两个人的游戏的逻辑放在这里
         """
         print(self.game_record)
 
-    def round_judgement(self, player1_decision, player2_decision):
-        """
-        Decide the winner or loser.
-        
-        Take 2 argument and a utility table.
-        
-        Return a pair int which is how much points they gain.
-        Like (5, 5)
-        """
-        if player1_decision and player2_decision:
-            return (self.utility_table["cooperate for cooperate"], self.utility_table["cooperate for cooperate"])
-        elif player1_decision and not player2_decision:
-            return (self.utility_table["cooperate for betray"], self.utility_table["betray for cooperate"])
-        elif not player1_decision and player2_decision:
-            return (self.utility_table["betray for cooperate"], self.utility_table["cooperate for betray"])
-        elif not player1_decision and not player2_decision:
-            return (self.utility_table["betray for betray"], self.utility_table["betray for betray"])
+def round_judgement(utility_table, player1_decision, player2_decision):
+    """
+    Decide the winner or loser.
+    
+    Take 2 argument and a utility table.
+    
+    Return a pair int which is how much points they gain.
+    Like (5, 5)
+    """
+    if player1_decision and player2_decision:
+        return (utility_table["cooperate for cooperate"], utility_table["cooperate for cooperate"])
+    elif player1_decision and not player2_decision:
+        return (utility_table["cooperate for betray"], utility_table["betray for cooperate"])
+    elif not player1_decision and player2_decision:
+        return (utility_table["betray for cooperate"], utility_table["cooperate for betray"])
+    elif not player1_decision and not player2_decision:
+        return (utility_table["betray for betray"], utility_table["betray for betray"])
 
 if __name__ == "__main__":
     # 创建游戏实例，设置玩家数量和回合数
