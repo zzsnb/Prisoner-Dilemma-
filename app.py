@@ -130,6 +130,12 @@ class A_game(): # 一局两个人的游戏的逻辑放在这里
             "player1_point": player1.point,
             "player2_point": player2.point, # 之所以这个字典里还要存一遍双方目前分数，是为了给strategy函数传递。
         }
+        self.utility_table = {
+            "cooperate for betray": 0,
+            "betray for cooperate": 5,
+            "cooperate for cooperate": 3,
+            "betray for betray": 0
+        }
 
     def play(self):
         """
@@ -150,34 +156,15 @@ class A_game(): # 一局两个人的游戏的逻辑放在这里
         It executes with 2 participants' strategy and judge the game point.
         It returns nothing.
         """
-        if player1_decision and player2_decision:
-            self.game_record["history"].append((player1_decision, player2_decision))
-            self.game_record["player1_point"] += 5
-            self.game_record["player2_point"] += 5            
-            self.player1.point += 5
-            self.player2.point += 5
-
-        elif player1_decision and not player2_decision:
-            self.game_record["history"].append((True, False))
-            self.game_record["player1_point"] += 0
-            self.game_record["player2_point"] += 5     
-            self.player1.point += 0
-            self.player2.point += 5
-
-        elif not player1_decision and player2_decision:
-            self.game_record["history"].append((False, True))
-            self.game_record["player1_point"] += 5
-            self.game_record["player2_point"] += 0      
-            self.player1.point += 5
-            self.player2.point += 0
-
-        else:
-            self.game_record["history"].append((False, False))
-            self.game_record["player1_point"] += 1
-            self.game_record["player2_point"] += 1         
-            self.player1.point += 1
-            self.player2.point += 1
+        self.game_record["history"].append((player1_decision, player2_decision))
+        utility = self.round_judgement(player1_decision, player2_decision)
+        self.game_record["player1_point"] += utility[0]
+        self.game_record["player2_point"] += utility[1]
+        self.player1.point += utility[0]
+        self.player2.point += utility[1]
+        
         # 由于这里没有把更新game_record的函数和判断输赢的函数分开，导致在后续编写win-stay，lose-shift策略时出现困难。
+        # 现更改成分离性更高的写法
 
     def update(self):
         """
@@ -190,6 +177,24 @@ class A_game(): # 一局两个人的游戏的逻辑放在这里
         return nothing.
         """
         print(self.game_record)
+
+    def round_judgement(self, player1_decision, player2_decision):
+        """
+        Decide the winner or loser.
+        
+        Take 2 argument and a utility table.
+        
+        Return a pair int which is how much points they gain.
+        Like (5, 5)
+        """
+        if player1_decision and player2_decision:
+            return (self.utility_table["cooperate for cooperate"], self.utility_table["cooperate for cooperate"])
+        elif player1_decision and not player2_decision:
+            return (self.utility_table["cooperate for betray"], self.utility_table["betray for cooperate"])
+        elif not player1_decision and player2_decision:
+            return (self.utility_table["betray for cooperate"], self.utility_table["cooperate for betray"])
+        elif not player1_decision and not player2_decision:
+            return (self.utility_table["betray for betray"], self.utility_table["betray for betray"])
 
 if __name__ == "__main__":
     # 创建游戏实例，设置玩家数量和回合数

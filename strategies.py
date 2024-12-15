@@ -95,6 +95,7 @@ def judas(*args):
         return False
     
 def win_stay_lose_shift(*args):
+    """not finished"""
     """
     a strategy starts with cooperate, shift if gain less, otherwise stay.
     """
@@ -102,4 +103,4 @@ def win_stay_lose_shift(*args):
     if len(game_record["history"]) < 2:
         return True
     else:
-        if 
+        pass 
