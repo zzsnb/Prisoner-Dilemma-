@@ -47,8 +47,7 @@ class Whole_game(): # 整个大局游戏的逻辑放在这里。
             self.players.append(Prisoner(name, strategy))
 
         # Choose the mode for the game.
-        self.mode = Whole_game.simple_game
-        "***If there are other game types, here should be changed.***"
+        self.mode = self.choose_mode(number_of_players)
 
         self.whole_game_record = {
             "scores": {player.name: player.point for player in self.players},
@@ -56,6 +55,15 @@ class Whole_game(): # 整个大局游戏的逻辑放在这里。
         }
         # Done! But not yet call simple game.
     
+    def play_whole_game(self):
+       self.mode()
+
+    def choose_mode(self, num_of_players):
+        if num_of_players == 2:
+            return self.simple_game
+        else:
+            return self.tournament
+
     def choose_strategy(name):
     # 定义一个策略映射字典，键为用户输入的选项，值为相应的策略函数
         strategy_map = {
@@ -95,8 +103,18 @@ class Whole_game(): # 整个大局游戏的逻辑放在这里。
         the_only_game = A_game(player1, player2, rounds)
         the_only_game.play()
 
-    def tournament():
-        return "***Not Complete Yet.***"
+    def tournament(self):
+        """
+        This function deals with a whole game between more than 2 players.
+        It execute the games between every two players.
+        """
+        for i in range(number_of_players):
+            for j in range(i + 1, number_of_players):
+                player1 = self.players[i]
+                player2 = self.players[j]
+                rounds = self.rounds
+                a_game = A_game(player1, player2, rounds)
+                a_game.play()
 
 class A_game(): # 一局两个人的游戏的逻辑放在这里
     @classmethod
@@ -174,17 +192,55 @@ def round_judgement(utility_table, player1_decision, player2_decision):
     elif not player1_decision and not player2_decision:
         return (utility_table["betray for betray"], utility_table["betray for betray"])
 
-if __name__ == "__main__":
-    # 创建游戏实例，设置玩家数量和回合数
-    game = Whole_game(number_of_players=2, rounds=5)
+def select_players():
+    """
+    Select the number of players.
+    """
+    while True:
+        try:
+            number_of_players = int(input("Please enter the number of players: "))
+            if number_of_players < 2:
+                print("There should be 2 or more players.")
+            else:
+                return number_of_players
+        except ValueError:
+            print("Please enter a valid integer.")
+        
+def select_rounds():
+    """
+    Select the number of rounds.
+    """
+    while True:
+        try:
+            number_of_rounds = int(input("Please enter the number of rounds: "))
+            if number_of_rounds < 1:
+                print("There should be at least 1 round.")
+            else:
+                return number_of_rounds
+        except ValueError:
+            print("Please enter an interger.")
     
-    # 启动简单游戏模式
-    game.simple_game()
+
+if __name__ == "__main__":
+
+    number_of_players = select_players()
+    number_of_rounds = select_rounds()
+    # 创建游戏实例，设置玩家数量和回合数
+    game = Whole_game(number_of_players = number_of_players, rounds = number_of_rounds)
+    
+    # 启动游戏
+    game.play_whole_game()
 
     # 输出最终分数
     for player in game.players:
-        print(f"{player.name} final score: {player.point}")
-
+        print(f"{player.name}({player.strategy.__name__}) final score: {player.point}")
+    
+    # 找到得分最高的玩家
+    highest_score_player = max(game.players, key=lambda player: player.point)
+    # 输出得分最高的玩家的名字和分数
+    print(f"Highest score: {highest_score_player.name} " + 
+          f"strategy: {highest_score_player.strategy.__name__} final score: {highest_score_player.point}")
+        
 
 
     

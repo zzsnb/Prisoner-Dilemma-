@@ -113,7 +113,6 @@ def win_stay_lose_shift(*args):
         if last_gain >= lastlast_gain and last_gain != 0:
             return last_decision
         else:
-            print(not last_decision)
             return not last_decision
         
 def grim_trigger(*args):
@@ -131,8 +130,9 @@ def reputation(*args):
                       if (player0 if isplayer0or1 == 1 else player1) == True)
     betray_times = game_record["the_number_of_round"] - cooperate_times
     if cooperate_times >= betray_times:
-        print(cooperate_times,betray_times)
         return True
     else:
-        print(cooperate_times,betray_times)
         return False
+    
+def custorm(*ars):
+    pass
