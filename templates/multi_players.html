@@ -1,0 +1,117 @@
+{% extends "layout.html" %}
+
+{% block title %}多人游戏{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- 左侧游戏设置 -->
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">游戏设置</h5>
+                </div>
+                <div class="card-body">
+                    <form action="/multi_players" method="post">
+                        <div class="mb-3">
+                            <label for="rounds" class="form-label">每组对战回合数:</label>
+                            <input type="number" 
+                                   class="form-control" 
+                                   id="rounds" 
+                                   name="rounds" 
+                                   min="1" 
+                                   max="1000" 
+                                   value="10" 
+                                   required>
+                            <div class="form-text">请输入1-1000之间的回合数</div>
+                        </div>
+
+                        <!-- 动态生成玩家策略选择框 -->
+                        {% for i in range(number_of_players) %}
+                        <div class="mb-3">
+                            <label for="player{{i+1}}_strategy" class="form-label">玩家{{i+1}}策略:</label>
+                            <select class="form-select" id="player{{i+1}}_strategy" name="player{{i+1}}_strategy" required>
+                                <option value="">请选择策略</option>
+                                <option value="cooperate">始终合作</option>
+                                <option value="betray">始终背叛</option>
+                                <option value="retaliate">以牙还牙</option>
+                                <option value="retaliate2">两次以牙还牙</option>
+                                <option value="totalrandom">随机选择</option>
+                            </select>
+                        </div>
+                        {% endfor %}
+
+                        <button type="submit" class="btn btn-primary">开始游戏</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右侧游戏结果 -->
+        <div class="col-md-8">
+            {% if final_scores %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">最终得分</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>玩家</th>
+                                <th>策略</th>
+                                <th>总得分</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for player in final_scores %}
+                            <tr>
+                                <td>{{ player.name }}</td>
+                                <td>{{ player.strategy }}</td>
+                                <td>{{ player.score }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 对战详情 -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">对战详情</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>玩家1</th>
+                                <th>玩家2</th>
+                                <th>玩家1得分</th>
+                                <th>玩家2得分</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if match_results %}
+                                {% for match in match_results %}
+                                <tr>
+                                    <td>{{ match.player1 }}</td>
+                                    <td>{{ match.player2 }}</td>
+                                    <td>{{ match.score1 }}</td>
+                                    <td>{{ match.score2 }}</td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="4" class="text-center">暂无对战记录</td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

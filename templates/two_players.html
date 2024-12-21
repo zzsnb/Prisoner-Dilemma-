@@ -1,0 +1,319 @@
+{% extends "layout.html" %}
+
+{% block title %}双人游戏{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- 左侧面板 -->
+        <div class="col-md-4">
+            <!-- 效用表 -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">效用矩阵 (Utility Matrix)</h5>
+                    <button class="btn btn-sm btn-outline-primary" onclick="toggleEdit()">编辑效用值</button>
+                </div>
+                <div class="card-body">
+                    <!-- 默认显示的效用表 -->
+                    <div id="utilityDisplay">
+                        <table class="table table-bordered text-center">
+                            <thead>
+                                <tr>
+                                    <th scope="col" colspan="2" rowspan="2"></th>
+                                    <th scope="col" colspan="2">玩家2</th>
+                                </tr>
+                                <tr>
+                                    <th scope="col">合作</th>
+                                    <th scope="col">背叛</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <th scope="row" rowspan="2" class="align-middle">玩家1</th>
+                                    <td>合作</td>
+                                    <td>{{ utility_table["cooperate for cooperate"] }}分, {{ utility_table["cooperate for cooperate"] }}分</td>
+                                    <td>{{ utility_table["cooperate for betray"] }}分, {{ utility_table["betray for cooperate"] }}分</td>
+                                </tr>
+                                <tr>
+                                    <td>背叛</td>
+                                    <td>{{ utility_table["betray for cooperate"] }}分, {{ utility_table["cooperate for betray"] }}分</td>
+                                    <td>{{ utility_table["betray for betray"] }}分, {{ utility_table["betray for betray"] }}分</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- 编辑表单 -->
+                    <form id="utilityForm" action="{{ url_for('update_utility') }}" method="post" class="d-none">
+                        <div class="table-responsive">
+                            <table class="table table-bordered text-center">
+                                <thead>
+                                    <tr>
+                                        <th scope="col" colspan="2" rowspan="2"></th>
+                                        <th scope="col" colspan="2">玩家2</th>
+                                    </tr>
+                                    <tr>
+                                        <th scope="col">合作</th>
+                                        <th scope="col">背叛</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <th scope="row" rowspan="2" class="align-middle">玩家1</th>
+                                        <td>合作</td>
+                                        <td>
+                                            <div class="d-flex gap-1">
+                                                <input type="number" name="cc1" class="form-control form-control-sm utility-input"
+                                                       value="{{ utility_table['cooperate for cooperate'] }}" disabled>
+                                                <input type="number" name="cc2" class="form-control form-control-sm utility-input"
+                                                       value="{{ utility_table['cooperate for cooperate'] }}" disabled>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex gap-1">
+                                                <input type="number" name="cb1" class="form-control form-control-sm utility-input"
+                                                       value="{{ utility_table['cooperate for betray'] }}" disabled>
+                                                <input type="number" name="cb2" class="form-control form-control-sm utility-input"
+                                                       value="{{ utility_table['betray for cooperate'] }}" disabled>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>背叛</td>
+                                        <td>
+                                            <div class="d-flex gap-1">
+                                                <input type="number" name="bc1" class="form-control form-control-sm utility-input"
+                                                       value="{{ utility_table['betray for cooperate'] }}" disabled>
+                                                <input type="number" name="bc2" class="form-control form-control-sm utility-input"
+                                                       value="{{ utility_table['cooperate for betray'] }}" disabled>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex gap-1">
+                                                <input type="number" name="bb1" class="form-control form-control-sm utility-input"
+                                                       value="{{ utility_table['betray for betray'] }}" disabled>
+                                                <input type="number" name="bb2" class="form-control form-control-sm utility-input"
+                                                       value="{{ utility_table['betray for betray'] }}" disabled>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="text-end mt-2 d-none" id="utilityButtons">
+                            <button type="button" class="btn btn-secondary" onclick="cancelEdit()">取消</button>
+                            <button type="submit" class="btn btn-primary">保存</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- 回合数设置 -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">回合数设置</h5>
+                </div>
+                <div class="card-body">
+                    <form action="/two_players" method="post">
+                        <div class="mb-3">
+                            <label for="rounds" class="form-label">游戏回合数:</label>
+                            <input type="number" 
+                                   class="form-control" 
+                                   id="rounds" 
+                                   name="rounds" 
+                                   min="1" 
+                                   max="1000" 
+                                   value="10" 
+                                   required>
+                            <div class="form-text">请输入1-1000之间的回合数</div>
+                        </div>
+                        <!-- 策略选择 -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">策略选择</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label for="player1_strategy" class="form-label">玩家1策略:</label>
+                                    <select class="form-select" id="player1_strategy" name="player1_strategy" required>
+                                        <option value="">请选择策略</option>
+                                        <option value="cooperate">始终合作</option>
+                                        <option value="betray">始终背叛</option>
+                                        <option value="select_every_turn">逐轮选择</option>
+                                        <option value="retaliate">以牙还牙</option>
+                                        <option value="retaliate2">两次以牙还牙</option>
+                                        <option value="totalrandom">随机选择</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="player2_strategy" class="form-label">玩家2策略:</label>
+                                    <select class="form-select" id="player2_strategy" name="player2_strategy" required>
+                                        <option value="">请选择策略</option>
+                                        <option value="cooperate">始终合作</option>
+                                        <option value="betray">始终背叛</option>
+                                        <option value="select_every_turn">逐轮选择</option>
+                                        <option value="retaliate">以牙还牙</option>
+                                        <option value="retaliate2">两次以牙还牙</option>
+                                        <option value="totalrandom">随机选择</option>
+                                    </select>
+                                </div>
+                                <button style="text-align: center" type="submit" class="btn btn-primary">开始游戏</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右侧对战记录 -->
+        <div class="col-md-8">
+            {% if show_round_choices %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">第 {{ current_round }} 回合选择</h5>
+                </div>
+                <div class="card-body">
+                    <form action="{{ url_for('make_choice') }}" method="post">
+                        <div class="row mb-3">
+                            {% if waiting_for_player1 %}
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <h6>玩家1选择:</h6>
+                                    <select class="form-select" name="choice1" required>
+                                        <option value="" selected disabled>请选择...</option>
+                                        <option value="cooperate">合作</option>
+                                        <option value="betray">背叛</option>
+                                    </select>
+                                </div>
+                            </div>
+                            {% endif %}
+                            {% if waiting_for_player2 %}
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <h6>玩家2选择:</h6>
+                                    <select class="form-select" name="choice2" required>
+                                        <option value="" selected disabled>请选择...</option>
+                                        <option value="cooperate">合作</option>
+                                        <option value="betray">背叛</option>
+                                    </select>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary">提交选择</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- 最终得分展示 -->
+            {% if final_scores %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">最终结果</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>玩家1得分</h6>
+                            <p>策略: {{ final_scores.player1.strategy }}<br>
+                               得分: {{ final_scores.player1.score }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>玩家2得分</h6>
+                            <p>策略: {{ final_scores.player2.strategy }}<br>
+                               得分: {{ final_scores.player2.score }}</p>
+                        </div>
+                    </div>
+                    <div class="text-center">
+                        <h6>获胜者</h6>
+                        <p class="mb-0">
+                            {% if final_scores.player1.score > final_scores.player2.score %}
+                                玩家1胜利！
+                            {% elif final_scores.player1.score < final_scores.player2.score %}
+                                玩家2胜利！
+                            {% else %}
+                                平局！
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- 对战记录表格 -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">对战记录</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>回合</th>
+                                    <th>玩家1选择</th>
+                                    <th>玩家1得分</th>
+                                    <th>玩家2选择</th>
+                                    <th>玩家2得分</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if game_history %}
+                                    {% for round in game_history %}
+                                    <tr>
+                                        <td>{{ round.round_number }}</td>
+                                        <td>{{ "合作" if round.player1_choice else "背叛" }}</td>
+                                        <td>{{ round.player1_score }}</td>
+                                        <td>{{ "合作" if round.player2_choice else "背叛" }}</td>
+                                        <td>{{ round.player2_score }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="5" class="text-center">暂无对战记录</td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+function toggleEdit() {
+    const utilityDisplay = document.getElementById('utilityDisplay');
+    const utilityForm = document.getElementById('utilityForm');
+    const buttons = document.getElementById('utilityButtons');
+    const inputs = document.querySelectorAll('.utility-input');
+    
+    utilityDisplay.classList.toggle('d-none');
+    utilityForm.classList.toggle('d-none');
+    buttons.classList.toggle('d-none');
+    
+    inputs.forEach(input => {
+        input.disabled = !input.disabled;
+    });
+}
+
+function cancelEdit() {
+    const utilityDisplay = document.getElementById('utilityDisplay');
+    const utilityForm = document.getElementById('utilityForm');
+    const buttons = document.getElementById('utilityButtons');
+    const inputs = document.querySelectorAll('.utility-input');
+    
+    utilityDisplay.classList.remove('d-none');
+    utilityForm.classList.add('d-none');
+    buttons.classList.add('d-none');
+    
+    inputs.forEach(input => {
+        input.disabled = true;
+        input.value = input.defaultValue;
+    });
+}
+</script>
+{% endblock %}

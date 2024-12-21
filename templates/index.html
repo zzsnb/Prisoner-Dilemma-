@@ -1,0 +1,99 @@
+{% extends "layout.html"%}
+
+{% block title %}首页{% endblock %}
+
+{% block content %}
+    <style>
+        .extra-margin-top {
+            margin-top: 9rem; /* 自定义更大的上外边距 */
+        }
+        .extra-padding-top {
+            padding-top: 9rem; /* 自定义更大的上内边距 */
+        }
+    </style>
+
+    <div class="container">
+        <div class="text-center mb-5">
+            <h1 class="display-1 mb-3">Prisoner's Dilemma</h1>
+            <h4 class="mb-5">囚徒困境</h4>
+            <a href="/profile" class="btn btn-outline-secondary">了解囚徒困境</a>
+        </div>
+
+        <!-- 错误提示区域 -->
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div id="error-message" class="alert alert-danger alert-dismissible fade d-none" role="alert">
+                    <div id="error-text"></div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 将表单移到页面下半部分 -->
+        <div class="row justify-content-center extra-margin-top extra-padding-top">
+            <div class="col-md-6">
+                <form action="/begin" method="post" onsubmit="return validateForm()">
+                    <div class="mb-4 text-center">
+                        <input type="number" 
+                               class="form-control form-control-lg w-50 mx-auto" 
+                               id="player_number" 
+                               name="player_number" 
+                               autofocus 
+                               autocomplete="off" 
+                               placeholder="请输入玩家数量"
+                               min="1"
+                               required>
+                    </div>
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-primary btn-lg px-5">进入游戏</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function validateForm() {
+            const playerNumber = document.getElementById('player_number').value;
+            const errorDiv = document.getElementById('error-message');
+            
+            // 清除之前的错误信息
+            errorDiv.classList.add('d-none');
+            
+            // 验证是否为空
+            if (!playerNumber) {
+                showError('请输入玩家数量');
+                return false;
+            }
+            
+            // 验证是否为数字
+            const number = parseInt(playerNumber);
+            if (isNaN(number)) {
+                showError('请输入有效的数字');
+                return false;
+            }
+            
+            // 验证范围
+            if (number < 1) {
+                showError('玩家数量必须大于等于1');
+                return false;
+            }
+            
+            if (number > 10) {
+                showError('玩家数量不能超过10');
+                return false;
+            }
+            
+            return true;
+        }
+        
+        function showError(message) {
+            const errorDiv = document.getElementById('error-message');
+            const errorText = document.getElementById('error-text');
+            errorText.textContent = message;
+            errorDiv.classList.remove('d-none');
+            errorDiv.classList.add('show');
+        }
+    </script>
+{% endblock %}
+

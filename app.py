@@ -1,6 +1,5 @@
 """This is a game theory game which is known as "prisoners' dilemma"."""
 
-# I set True for cooperate, False for betray.
 import strategies 
 
 utility_table = {
@@ -37,14 +36,13 @@ class Prisoner():
 
 class Whole_game(): # 整个大局游戏的逻辑放在这里。  
     def __init__(self, number_of_players = 2, rounds = 100): # here I initialize the game.
-        self.rounds = rounds
-        
+        self.rounds = min(max(1, rounds), 1000)  # 限制回合数在1-1000之间
+        self.number_of_players = number_of_players
         # choose strategy and initialize players
         self.players = []
         for i in range(number_of_players):
             name = f"player{i + 1}"
-            strategy = Whole_game.choose_strategy(name)
-            self.players.append(Prisoner(name, strategy))
+            self.players.append(Prisoner(name, strategies.cooperate))  # 默认策略设为cooperate
 
         # Choose the mode for the game.
         self.mode = self.choose_mode(number_of_players)
@@ -53,63 +51,35 @@ class Whole_game(): # 整个大局游戏的逻辑放在这里。
             "scores": {player.name: player.point for player in self.players},
             "game_mode": "{mode.__name__}"
         }
+        self.current_game = None  # 添加此行以存储当前游戏
         # Done! But not yet call simple game.
     
     def play_whole_game(self):
        self.mode()
 
     def choose_mode(self, num_of_players):
-        if num_of_players == 2:
+        if (num_of_players == 2):
             return self.simple_game
         else:
             return self.tournament
-
-    def choose_strategy(name):
-    # 定义一个策略映射字典，键为用户输入的选项，值为相应的策略函数
-        strategy_map = {
-            "c": strategies.cooperate,         # 始终合作
-            "b": strategies.betray,            # 始终背叛
-            "t": strategies.select_every_turn, # 轮流选择
-            "r": strategies.retaliate,         # 以牙还牙
-            "r2": strategies.retaliate2,       # Tit-for-2Tat
-            "rd": strategies.totalrandom,           # 随机
-            "jd": strategies.judas,
-            "w": strategies.win_stay_lose_shift,
-            "rp": strategies.reputation
-        }
-
-        while True:
-            user_input = input(f"Please choose the strategy for {name}.\n"
-                            + "B for always betray\n"
-                            + "C for always cooperate\n"
-                            + "T for choosing turn by turn\n"
-                            + "R for Tit-for-Tat\n"
-                            + "R2 for Tit-for-2Tat\n"
-                            + "RD for random\n"
-                            + "JD for Judas(cooperate when winning and betray when losing)\n"
-                            + "W for win-stay-lose-shift\n"
-                            + "RP for reputation(decide by the history of the opponent)\n").strip().lower()
-            
-            # 检查用户输入是否有效
-            if user_input in strategy_map:
-                return strategy_map[user_input]  # 返回对应的策略函数
-            else:
-                print("Invalid input, there is no such strategy.")
 
     def simple_game(self): # Have just two players
         player1 = self.players[0]
         player2 = self.players[1]
         rounds = self.rounds
-        the_only_game = A_game(player1, player2, rounds)
-        the_only_game.play()
+        self.current_game = A_game(player1, player2, rounds)
+        self.current_game.play()
+        # 将游戏记录复制给玩家
+        player1.game_record = self.current_game.game_record
+        player2.game_record = self.current_game.game_record
 
     def tournament(self):
         """
         This function deals with a whole game between more than 2 players.
         It execute the games between every two players.
         """
-        for i in range(number_of_players):
-            for j in range(i + 1, number_of_players):
+        for i in range(self.number_of_players):
+            for j in range(i + 1, self.number_of_players):
                 player1 = self.players[i]
                 player2 = self.players[j]
                 rounds = self.rounds
@@ -120,7 +90,7 @@ class A_game(): # 一局两个人的游戏的逻辑放在这里
     @classmethod
 
     def __init__(self, player1, player2, rounds = 100):
-        self.rounds = rounds
+        self.rounds = min(max(1, rounds), 1000)  # 限制回合数在1-1000之间
         self.player1 = player1
         self.player2 = player2
         self.player1.player0or1 = 0
@@ -192,55 +162,6 @@ def round_judgement(utility_table, player1_decision, player2_decision):
     elif not player1_decision and not player2_decision:
         return (utility_table["betray for betray"], utility_table["betray for betray"])
 
-def select_players():
-    """
-    Select the number of players.
-    """
-    while True:
-        try:
-            number_of_players = int(input("Please enter the number of players: "))
-            if number_of_players < 2:
-                print("There should be 2 or more players.")
-            else:
-                return number_of_players
-        except ValueError:
-            print("Please enter a valid integer.")
-        
-def select_rounds():
-    """
-    Select the number of rounds.
-    """
-    while True:
-        try:
-            number_of_rounds = int(input("Please enter the number of rounds: "))
-            if number_of_rounds < 1:
-                print("There should be at least 1 round.")
-            else:
-                return number_of_rounds
-        except ValueError:
-            print("Please enter an interger.")
-    
-
-if __name__ == "__main__":
-
-    number_of_players = select_players()
-    number_of_rounds = select_rounds()
-    # 创建游戏实例，设置玩家数量和回合数
-    game = Whole_game(number_of_players = number_of_players, rounds = number_of_rounds)
-    
-    # 启动游戏
-    game.play_whole_game()
-
-    # 输出最终分数
-    for player in game.players:
-        print(f"{player.name}({player.strategy.__name__}) final score: {player.point}")
-    
-    # 找到得分最高的玩家
-    highest_score_player = max(game.players, key=lambda player: player.point)
-    # 输出得分最高的玩家的名字和分数
-    print(f"Highest score: {highest_score_player.name} " + 
-          f"strategy: {highest_score_player.strategy.__name__} final score: {highest_score_player.point}")
-        
 
 
-    
+
