@@ -553,4 +553,5 @@ def page_not_found(e):
     return redirect(url_for('index'))
 
 if __name__ == '__main__':
-    app_gui.run(debug=False)
+    port = int(os.environ.get('PORT', 10000))  # 获取 PORT 环境变量，默认值为 10000
+    app_gui.run(host='0.0.0.0', port=port, debug=False)
