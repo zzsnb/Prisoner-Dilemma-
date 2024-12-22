@@ -1,14 +1,15 @@
 """web server for prisoner dilemma."""
 # 这个app_gui.py显然写得有点过度臃肿了，有很多可以复用代码的地方没有复用，远没有app_ui.py简洁。（Don't repeat yourself!)
 import os
-from flask import Flask, flash, redirect, render_template, request, session, url_for
+from flask import Flask, flash, redirect, render_template, request, session, url_for, send_from_directory
 from flask_session import Session
 from strategies import * 
 from app import utility_table 
 from app import Whole_game, Prisoner
 from config import STRATEGY_CONFIG, GAME_CONFIG
 
-app_gui = Flask(__name__)
+# 添加静态文件路径配置
+app_gui = Flask(__name__, static_url_path='/static')
 
 # 配置 Flask-Session
 app_gui.config["SESSION_PERMANENT"] = False
@@ -17,6 +18,11 @@ Session(app_gui)
 
 # 添加密钥(我咋感觉这行没啥用啊？感觉就是Flask所必须的)
 app_gui.secret_key = os.urandom(24)
+
+# 确保静态文件可以正确加载
+@app_gui.route('/static/<path:path>')
+def send_static(path):
+    return send_from_directory('static', path)
 
 # 替换原来的 strategy_names
 def get_available_strategies(mode):
@@ -213,7 +219,8 @@ def make_choice_single():
         return render_template('single_player.html',
                              utility_table=utility_table,
                              game_history=game_state['game_history'],
-                             final_scores=session['final_scores'])
+                             final_scores=session['final_scores'],
+                             strategies=get_available_strategies('single'))
     
     # 准备下一轮
     game_state['current_round'] += 1
@@ -515,20 +522,25 @@ def multi_players():
 @app_gui.route('/update_utility', methods=["POST"])
 def update_utility():
     if request.method == "POST":
-        # 获取新的效用值（现在每个情况有两个值）
-        new_utility = {
-            "cooperate for cooperate": int(request.form.get('cc1')),  # 只保存玩家1的值
-            "cooperate for betray": int(request.form.get('cb1')),
-            "betray for cooperate": int(request.form.get('bc1')),
-            "betray for betray": int(request.form.get('bb1'))
-        }
+        try:
+            # 获取并验证输入值
+            new_utility = {
+                "cooperate for cooperate": int(request.form.get('cc1')),
+                "cooperate for betray": int(request.form.get('cb1')), 
+                "betray for cooperate": int(request.form.get('bc1')),
+                "betray for betray": int(request.form.get('bb1'))
+            }
+            
+            # 更新全局效用表
+            for key, value in new_utility.items():
+                utility_table[key] = value
+            
+            flash("效用值已更新", "success")
+        except (ValueError, TypeError):
+            flash("请输入有效的数字", "error")
         
-        # 更新全局效用表
-        utility_table.update(new_utility)
-        session['utility_table'] = new_utility
-        
-        flash("效用值已更新", "success")
-        return redirect(url_for('single_player'))
+        # 重定向到之前的页面
+        return redirect(request.referrer or url_for('index'))
 
 @app_gui.route('/intro')
 def intro():

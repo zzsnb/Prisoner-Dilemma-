@@ -62,45 +62,29 @@
                                         <th scope="row" rowspan="2" class="align-middle">玩家1</th>
                                         <td>合作</td>
                                         <td>
-                                            <div class="d-flex gap-1">
-                                                <input type="number" name="cc1" class="form-control form-control-sm utility-input"
-                                                       value="{{ utility_table['cooperate for cooperate'] }}" disabled>
-                                                <input type="number" name="cc2" class="form-control form-control-sm utility-input"
-                                                       value="{{ utility_table['cooperate for cooperate'] }}" disabled>
-                                            </div>
+                                            <input type="number" name="cc1" class="form-control form-control-sm utility-input"
+                                                   value="{{ utility_table['cooperate for cooperate'] }}" required>
                                         </td>
                                         <td>
-                                            <div class="d-flex gap-1">
-                                                <input type="number" name="cb1" class="form-control form-control-sm utility-input"
-                                                       value="{{ utility_table['cooperate for betray'] }}" disabled>
-                                                <input type="number" name="cb2" class="form-control form-control-sm utility-input"
-                                                       value="{{ utility_table['betray for cooperate'] }}" disabled>
-                                            </div>
+                                            <input type="number" name="cb1" class="form-control form-control-sm utility-input"
+                                                   value="{{ utility_table['cooperate for betray'] }}" required>
                                         </td>
                                     </tr>
                                     <tr>
                                         <td>背叛</td>
                                         <td>
-                                            <div class="d-flex gap-1">
-                                                <input type="number" name="bc1" class="form-control form-control-sm utility-input"
-                                                       value="{{ utility_table['betray for cooperate'] }}" disabled>
-                                                <input type="number" name="bc2" class="form-control form-control-sm utility-input"
-                                                       value="{{ utility_table['cooperate for betray'] }}" disabled>
-                                            </div>
+                                            <input type="number" name="bc1" class="form-control form-control-sm utility-input"
+                                                   value="{{ utility_table['betray for cooperate'] }}" required>
                                         </td>
                                         <td>
-                                            <div class="d-flex gap-1">
-                                                <input type="number" name="bb1" class="form-control form-control-sm utility-input"
-                                                       value="{{ utility_table['betray for betray'] }}" disabled>
-                                                <input type="number" name="bb2" class="form-control form-control-sm utility-input"
-                                                       value="{{ utility_table['betray for betray'] }}" disabled>
-                                            </div>
+                                            <input type="number" name="bb1" class="form-control form-control-sm utility-input"
+                                                   value="{{ utility_table['betray for betray'] }}" required>
                                         </td>
                                     </tr>
                                 </tbody>
                             </table>
                         </div>
-                        <div class="text-end mt-2 d-none" id="utilityButtons">
+                        <div class="text-end mt-2" id="utilityButtons">
                             <button type="button" class="btn btn-secondary" onclick="cancelEdit()">取消</button>
                             <button type="submit" class="btn btn-primary">保存</button>
                         </div>
@@ -257,31 +241,18 @@ function toggleEdit() {
     const utilityDisplay = document.getElementById('utilityDisplay');
     const utilityForm = document.getElementById('utilityForm');
     const buttons = document.getElementById('utilityButtons');
-    const inputs = document.querySelectorAll('.utility-input');
     
     utilityDisplay.classList.toggle('d-none');
     utilityForm.classList.toggle('d-none');
-    buttons.classList.toggle('d-none');
-    
-    inputs.forEach(input => {
-        input.disabled = !input.disabled;
-    });
 }
 
 function cancelEdit() {
     const utilityDisplay = document.getElementById('utilityDisplay');
     const utilityForm = document.getElementById('utilityForm');
-    const buttons = document.getElementById('utilityButtons');
-    const inputs = document.querySelectorAll('.utility-input');
     
     utilityDisplay.classList.remove('d-none');
     utilityForm.classList.add('d-none');
-    buttons.classList.add('d-none');
-    
-    inputs.forEach(input => {
-        input.disabled = true;
-        input.value = input.defaultValue;
-    });
+    utilityForm.reset();
 }
 </script>
 {% endblock %}

@@ -16,6 +16,8 @@
             transform: translateY(-50%);
             height: 400px; /* 调整图片高度 */
             z-index: -1; /* 确保图片在内容后面 */
+            object-fit: contain;
+            opacity: 0.8;
         }
         .left-image {
             left: 20px;
@@ -26,8 +28,14 @@
     </style>
 
     <!-- 添加左右两侧的图片 -->
-    <img src="{{ url_for('static', filename='images/Left.png') }}" alt="Left" class="side-image left-image">
-    <img src="{{ url_for('static', filename='images/Right.png') }}" alt="Right" class="side-image right-image">
+    <img src="{{ url_for('static', filename='images/Left.png') }}" 
+         alt="Left" 
+         class="side-image left-image"
+         onerror="this.style.display='none'">
+    <img src="{{ url_for('static', filename='images/Right.png') }}" 
+         alt="Right" 
+         class="side-image right-image"
+         onerror="this.style.display='none'">
 
     <div class="container">
         <div class="text-center mb-5">
