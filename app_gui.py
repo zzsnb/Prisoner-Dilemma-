@@ -1,4 +1,5 @@
 """web server for prisoner dilemma."""
+# 这个app_gui.py显然写得有点过度臃肿了，有很多可以复用代码的地方没有复用，远没有app_ui.py简洁。（Don't repeat yourself!)
 import os
 from flask import Flask, flash, redirect, render_template, request, session, url_for
 from flask_session import Session
@@ -425,6 +426,7 @@ def make_choice():
                          final_scores=session.get('final_scores'),
                          strategies=get_available_strategies('two'))
 
+
 @app_gui.route('/multi_players', methods=["GET", "POST"])
 def multi_players():
     if request.method == "GET":
@@ -527,6 +529,10 @@ def update_utility():
         
         flash("效用值已更新", "success")
         return redirect(url_for('single_player'))
+
+@app_gui.route('/intro')
+def intro():
+    return render_template('intro.html')
 
 # 添加错误处理
 @app_gui.errorhandler(404)

@@ -1,8 +1,46 @@
 {% extends "layout.html" %}
 
+{% block title %}囚徒困境简介{% endblock %}
+
 {% block content %}
 <div class="container">
     <h1>囚徒困境简介</h1>
-    <p>在这里添加囚徒困境的介绍内容...</p>
+    <style>
+        .intro-text {
+            font-size: 1.2rem;
+            line-height: 1.8; 
+            margin-bottom: 1.5rem; 
+        }
+        
+        .strategy-text {
+            font-size: 1.2rem;
+            line-height: 1.5; 
+            margin-bottom: 1.5rem; 
+            white-space: pre; /* 保留空格，这招还不如直接打空格管用 */
+        }
+    </style>
+
+    <p class="intro-text">囚徒困境这一博弈最早由Merrill Flood于1951年提出，后由Albert W. Tucker正式定义。这是一个既烧脑又有趣的假设场景：</p>
+    <p class="intro-text">两名罪犯被抓了。他们涉嫌盗窃，但警方手头的证据不足以定罪，只能用"非法携带武器"这种轻罪让他们进监狱。不过，为了套话，警方把两人关在单独的牢房，谁也见不着谁，然后提出一个问题：认罪还是不认罪？</p>
+    <p class="intro-text">如果两人都咬紧牙关不认，那就只能判个轻罪，各关<u>一年</u>，"留得青山在，不怕没柴烧"。但如果两人都招了，那可就惨了，每人<u>五年</u>跑不了。而要是一个认了，一个沉默死扛，那认罪的<u>立刻释放</u>，沉默的那个只能自认倒霉，吃<u>二十年</u>牢饭，简直是"哑巴吃黄连，有苦说不出"。</p>
+    <p class="intro-text">如果你是其中一名罪犯，你会如何选择？</p>
+    <p></p>
+    <p class="intro-text">1980年，Robert Axelrod教授举办了一场关于囚徒困境的策略竞赛。他邀请全世界的博弈论学者提交策略，这些策略将通过计算机模拟运行。在比赛中，各策略会多次与其他策略及自身进行对局。每个策略会根据之前自己和对手的行动决定下一步是合作还是背叛。</p>
+    <p class="intro-text">参赛的策略可谓五花八门，其中有这么几种典型的：</p>
+    <p class="strategy-text">      <strong>永远背叛（Always defect）：</strong>用这招的人就像铁公鸡一样一毛不拔。符合纳什均衡，但它也错过了与愿意合作的对手共赢达成帕雷托最优的可能。</p>
+    <p class="strategy-text">      <strong>永远合作（Always cooperate）：</strong>总是合作，心很大。但遇上背叛者，这策略就像“肉包子打狗”，只亏不赚。</p>
+    <p class="strategy-text">      <strong>完全随机（Random）：</strong>靠掷硬币决定合作还是背叛，能不能赢全看天意。</p>
+    <p class="intro-text">最终赢得竞赛的是大名鼎鼎的<strong>“以牙还牙”（TIT FOR TAT）</strong>  策略。它的核心是“先礼后兵”：第一回合合作，之后每回合模仿对手上次的行为。对手合作，它就合作；对手背叛，它立刻还击。真可谓“你敬我一尺，我还你一丈”。</p>
+    <p class="intro-text">“以牙还牙”策略虽然简单高效，但也有明显弊端：1.对误判敏感：一旦对手误操作或意外背叛，双方容易陷入无休止的报复循环，错失合作机会。2.对固定或随机策略无优势：对“随机”或“永远背叛”策略表现平平，仅能勉强自保。3.缺乏主导权：过于被动，容易受对手策略牵制，无法主导局势。</p>
+    <p class="intro-text">本网站提供了多种经典策略，模拟当年的囚徒困境锦标赛，甚至可以自行提交策略参与游戏（未完成的期货）。</p>
+    <div>
+    <p><a href="https://www.youtube.com/watch?v=nM3rTU927io">Short video introduction from the place in youtube</a></p>
+    <p><a href="https://cs.stanford.edu/people/eroberts/courses/soco/projects/1998-99/game-theory/index.html">Stanford关于囚徒困境和囚徒困境锦标赛的介绍</a></p>
+    <p><a href="https://zh.wikipedia.org/wiki/囚徒困境">维基百科关于囚徒困境的中文介绍</a></p>
+    <p><a href="https://en.wikipedia.org/wiki/Prisoner's_dilemma">Wikipedia's introduction to Prisoner's Dilemma</a></p>
+    <p><a href="https://www.bilibili.com/video/BV1Kt411h7Ep/?spm_id_from=333.337.search-card.all.click&vd_source=5eea6a6e5df72fdb8c4be25b9bab6c46">耶鲁大学博弈论公开课（bilibili）</a></p>
+    <p><a href="https://www.youtube.com/watch?v=nM3rTU927io">Game theory from Yalecourses in Youtube.</a></p>
+    
+</div>
 </div>
 {% endblock %}

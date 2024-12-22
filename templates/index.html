@@ -10,13 +10,30 @@
         .extra-padding-top {
             padding-top: 9rem; /* 自定义更大的上内边距 */
         }
+        .side-image {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            height: 400px; /* 调整图片高度 */
+            z-index: -1; /* 确保图片在内容后面 */
+        }
+        .left-image {
+            left: 20px;
+        }
+        .right-image {
+            right: 20px;
+        }
     </style>
+
+    <!-- 添加左右两侧的图片 -->
+    <img src="{{ url_for('static', filename='images/Left.png') }}" alt="Left" class="side-image left-image">
+    <img src="{{ url_for('static', filename='images/Right.png') }}" alt="Right" class="side-image right-image">
 
     <div class="container">
         <div class="text-center mb-5">
             <h1 class="display-1 mb-3">Prisoner's Dilemma</h1>
             <h4 class="mb-5">囚徒困境</h4>
-            <a href="/profile" class="btn btn-outline-secondary">了解囚徒困境</a>
+            <a href="/intro" class="btn btn-outline-secondary">了解囚徒困境</a>
         </div>
 
         <!-- 错误提示区域 -->
