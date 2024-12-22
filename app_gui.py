@@ -553,4 +553,4 @@ def page_not_found(e):
     return redirect(url_for('index'))
 
 if __name__ == '__main__':
-    app_gui.run(debug=True)
+    app_gui.run(debug=False)
