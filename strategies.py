@@ -114,9 +114,6 @@ def win_stay_lose_shift(*args):
             return last_decision
         else:
             return not last_decision
-        
-def grim_trigger(*args):
-    pass
 
 def reputation(*args):
     """
@@ -134,5 +131,3 @@ def reputation(*args):
     else:
         return False
     
-def custorm(*ars):
-    pass

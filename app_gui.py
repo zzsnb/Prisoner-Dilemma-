@@ -2,9 +2,10 @@
 import os
 from flask import Flask, flash, redirect, render_template, request, session, url_for
 from flask_session import Session
-from strategies import *  # 导入所有策略
-from app import utility_table  # 导入效用表
+from strategies import * 
+from app import utility_table 
 from app import Whole_game, Prisoner
+from config import STRATEGY_CONFIG, GAME_CONFIG
 
 app_gui = Flask(__name__)
 
@@ -13,18 +14,13 @@ app_gui.config["SESSION_PERMANENT"] = False
 app_gui.config["SESSION_TYPE"] = "filesystem"
 Session(app_gui)
 
-# 添加密钥
+# 添加密钥(我咋感觉这行没啥用啊？感觉就是Flask所必须的)
 app_gui.secret_key = os.urandom(24)
 
-# 添加策略名称映射
-strategy_names = {
-    'cooperate': '始终合作',
-    'betray': '始终背叛',
-    'select_every_turn': '逐轮选择',
-    'retaliate': '以牙还牙',
-    'retaliate2': '两次以牙还牙',
-    'totalrandom': '随机选择'
-}
+# 替换原来的 strategy_names
+def get_available_strategies(mode):
+    """获取指定模式下可用的策略"""
+    return {k: v['name'] for k, v in STRATEGY_CONFIG.items() if mode in v['modes']}
 
 @app_gui.route('/', methods=["GET"])
 def index():
@@ -61,8 +57,16 @@ def begin():
 
 @app_gui.route('/single_player', methods=["GET", "POST"])
 def single_player():
+    if request.method == "GET":
+        return render_template("single_player.html",
+                            utility_table=utility_table,
+                            game_history=session.get("game_history", []),
+                            final_scores=session.get("final_scores"),
+                            strategies=get_available_strategies('single'),
+                            show_round_choices=session.get('single_game_state') is not None,
+                            current_round=session.get('single_game_state', {}).get('current_round'))
     if request.method == "POST":
-        # 清除之前的游戏记录
+        # 每次点击“进入游戏”按钮，都清除之前的游戏记录
         session.pop('game_history', None)
         session.pop('final_scores', None)
         session.pop('single_game_state', None)
@@ -95,11 +99,12 @@ def single_player():
                                 utility_table=utility_table,
                                 show_round_choices=True,
                                 current_round=1,
-                                game_history=[])
-        
+                                game_history=[],
+                                strategies=get_available_strategies('single'))
+        else:
         # 如果是自动策略，执行原有逻辑
-        player1 = Prisoner("玩家", globals()[player_strategy])
-        player2 = Prisoner("电脑", globals()[computer_strategy])
+            player1 = Prisoner("玩家", globals()[player_strategy])
+            player2 = Prisoner("电脑", globals()[computer_strategy])
         
         # 创建游戏实例并设置回合数
         game = Whole_game(number_of_players=2, rounds=rounds)
@@ -149,12 +154,14 @@ def single_player():
         return render_template("single_player.html",
                              utility_table=utility_table,
                              game_history=game_history,
-                             final_scores=session["final_scores"])
+                             final_scores=session["final_scores"],
+                             strategies=get_available_strategies('single'))
     
     return render_template("single_player.html",
                          utility_table=utility_table,
                          game_history=session.get("game_history", []),
-                         final_scores=session.get("final_scores"))
+                         final_scores=session.get("final_scores"),
+                         strategies=get_available_strategies('single'))
 
 @app_gui.route('/make_choice_single', methods=["POST"])
 def make_choice_single():
@@ -215,10 +222,18 @@ def make_choice_single():
                          utility_table=utility_table,
                          show_round_choices=True,
                          current_round=game_state['current_round'],
-                         game_history=game_state['game_history'])
+                         game_history=game_state['game_history'],
+                         strategies=get_available_strategies('single'))
 
 @app_gui.route('/two_players', methods=["GET", "POST"])
 def two_players():
+    if request.method == "GET":
+        strategies = get_available_strategies('two')
+        return render_template("two_players.html",
+                            utility_table=utility_table,
+                            strategies=strategies,
+                            game_history=session.get("game_history", []),
+                            final_scores=session.get("final_scores"))
     if request.method == "POST":
         # 清除之前的游戏记录
         session.pop('game_history', None)
@@ -257,8 +272,7 @@ def two_players():
                                 current_round=1,
                                 waiting_for_player1=player1_strategy == 'select_every_turn',
                                 waiting_for_player2=player2_strategy == 'select_every_turn',
-                                strategies=strategy_names.keys(),
-                                strategy_names=strategy_names)
+                                strategies=get_available_strategies('two'))
         
         # 如果没有人选择逐轮选择，直接执行自动对战逻辑
         player1 = Prisoner("玩家1", globals()[player1_strategy])
@@ -301,13 +315,11 @@ def two_players():
                              utility_table=utility_table,
                              game_history=game_history,
                              final_scores=session["final_scores"],
-                             strategies=strategy_names.keys(),
-                             strategy_names=strategy_names)
+                             strategies=get_available_strategies('two'))
     
     return render_template("two_players.html",
                          utility_table=utility_table,
-                         strategies=strategy_names.keys(),
-                         strategy_names=strategy_names,
+                         strategies=get_available_strategies('two'),
                          game_history=session.get("game_history", []),
                          final_scores=session.get("final_scores"))
 
@@ -318,20 +330,43 @@ def make_choice():
         
     game_state = session['game_state']
     
-    # 获取或计算玩家选择
+    # 修复选择逻辑
+    choice1 = None
+    choice2 = None
+    
+    # 验证是否需要两个玩家都选择
+    if game_state['waiting_for_player1'] and game_state['waiting_for_player2']:
+        if not all([request.form.get('choice1'), request.form.get('choice2')]):
+            flash("两个玩家都需要做出选择")
+            return redirect(url_for('two_players'))
+    elif game_state['waiting_for_player1'] and not request.form.get('choice1'):
+        flash("请玩家1做出选择")
+        return redirect(url_for('two_players'))
+    elif game_state['waiting_for_player2'] and not request.form.get('choice2'):
+        flash("请玩家2做出选择")
+        return redirect(url_for('two_players'))
+
+    # 获取或计算玩家1的选择
     if game_state['player1_strategy'] == 'select_every_turn':
         choice1 = request.form.get('choice1') == 'cooperate'
     else:
-        # 使用预设策略
         player1 = Prisoner("玩家1", globals()[game_state['player1_strategy']])
-        choice1 = player1.decision({"history": game_state['game_history'], "the_number_of_round": game_state['current_round']}, 0)
+        game_record = {
+            "history": [(r["player1_choice"], r["player2_choice"]) for r in game_state['game_history']],
+            "the_number_of_round": game_state['current_round']
+        }
+        choice1 = player1.decision(game_record, 0)
 
+    # 获取或计算玩家2的选择
     if game_state['player2_strategy'] == 'select_every_turn':
         choice2 = request.form.get('choice2') == 'cooperate'
     else:
-        # 使用预设策略
         player2 = Prisoner("玩家2", globals()[game_state['player2_strategy']])
-        choice2 = player2.decision({"history": game_state['game_history'], "the_number_of_round": game_state['current_round']}, 1)
+        game_record = {
+            "history": [(r["player1_choice"], r["player2_choice"]) for r in game_state['game_history']],
+            "the_number_of_round": game_state['current_round']
+        }
+        choice2 = player2.decision(game_record, 1)
     
     # 计算得分
     utility = round_judgement(utility_table, choice1, choice2)
@@ -368,8 +403,7 @@ def make_choice():
                             game_history=game_state['game_history'],
                             final_scores=session['final_scores'],
                             show_round_choices=False,
-                            strategies=strategy_names.keys(),
-                            strategy_names=strategy_names)
+                            strategies=get_available_strategies('two'))
     
     # 准备下一轮
     game_state['current_round'] += 1
@@ -389,11 +423,17 @@ def make_choice():
                          waiting_for_player2=game_state['waiting_for_player2'],
                          game_history=game_state['game_history'],
                          final_scores=session.get('final_scores'),
-                         strategies=strategy_names.keys(),
-                         strategy_names=strategy_names)
+                         strategies=get_available_strategies('two'))
 
 @app_gui.route('/multi_players', methods=["GET", "POST"])
 def multi_players():
+    if request.method == "GET":
+        number_of_players = session.get("number_of_players", 3)
+        return render_template('multi_players.html',
+                            number_of_players=number_of_players,
+                            strategies=get_available_strategies('multi'),
+                            match_results=session.get('match_results'),
+                            final_scores=session.get('final_scores'))
     if request.method == "POST":
         # 清除之前的游戏记录
         session.pop('match_results', None)
@@ -458,6 +498,7 @@ def multi_players():
         
         return render_template('multi_players.html',
                              number_of_players=number_of_players,
+                             strategies=get_available_strategies('multi'),
                              match_results=match_results,
                              final_scores=final_scores)
     
@@ -465,6 +506,7 @@ def multi_players():
     number_of_players = session.get("number_of_players", 3)
     return render_template('multi_players.html',
                          number_of_players=number_of_players,
+                         strategies=get_available_strategies('multi'),
                          match_results=session.get('match_results'),
                          final_scores=session.get('final_scores'))
 

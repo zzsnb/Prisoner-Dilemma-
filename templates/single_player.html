@@ -137,23 +137,18 @@
                                     <label for="player_strategy" class="form-label">玩家策略:</label>
                                     <select class="form-select" id="player_strategy" name="player_strategy" required>
                                         <option value="">请选择策略</option>
-                                        <option value="cooperate">始终合作</option>
-                                        <option value="betray">始终背叛</option>
-                                        <option value="select_every_turn">逐轮选择</option>
-                                        <option value="retaliate">以牙还牙</option>
-                                        <option value="retaliate2">两次以牙还牙</option>
-                                        <option value="totalrandom">随机选择</option>
+                                        {% for key, name in strategies.items() %}
+                                        <option value="{{ key }}">{{ name }}</option>
+                                        {% endfor %}
                                     </select>
                                 </div>
                                 <div class="mb-3">
                                     <label for="computer_strategy" class="form-label">电脑策略:</label>
                                     <select class="form-select" id="computer_strategy" name="computer_strategy" required>
                                         <option value="">请选择策略</option>
-                                        <option value="cooperate">始终合作</option>
-                                        <option value="betray">始终背叛</option>
-                                        <option value="retaliate">以牙还牙</option>
-                                        <option value="retaliate2">两次以牙还牙</option>
-                                        <option value="totalrandom">随机选择</option>
+                                        {% for key, name in strategies.items() %}
+                                        <option value="{{ key }}">{{ name }}</option>
+                                        {% endfor %}
                                     </select>
                                 </div>
                                 <button style="text-align: center" type="submit" class="btn btn-primary">开始游戏</button>
