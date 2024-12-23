@@ -5,17 +5,17 @@
 {% block content %}
     <style>
         .extra-margin-top {
-            margin-top: 9rem; /* 自定义更大的上外边距 */
+            margin-top: 9rem;
         }
         .extra-padding-top {
-            padding-top: 9rem; /* 自定义更大的上内边距 */
+            padding-top: 9rem;
         }
         .side-image {
             position: fixed;
             top: 50%;
             transform: translateY(-50%);
-            height: 400px; /* 调整图片高度 */
-            z-index: -1; /* 确保图片在内容后面 */
+            height: 400px;
+            z-index: -1;
             object-fit: contain;
             opacity: 0.8;
         }
@@ -27,7 +27,7 @@
         }
     </style>
 
-    <!-- 添加左右两侧的图片 -->
+    # 在两侧添加来自youtube视频的图片
     <img src="{{ url_for('static', filename='images/Left.png') }}" 
          alt="Left" 
          class="side-image left-image"
@@ -44,7 +44,6 @@
             <a href="/intro" class="btn btn-outline-secondary">了解囚徒困境</a>
         </div>
 
-        <!-- 错误提示区域 -->
         <div class="row justify-content-center">
             <div class="col-md-6">
                 <div id="error-message" class="alert alert-danger alert-dismissible fade d-none" role="alert">
@@ -54,7 +53,6 @@
             </div>
         </div>
 
-        <!-- 将表单移到页面下半部分 -->
         <div class="row justify-content-center extra-margin-top extra-padding-top">
             <div class="col-md-6">
                 <form action="/begin" method="post" onsubmit="return validateForm()">
@@ -82,16 +80,13 @@
             const playerNumber = document.getElementById('player_number').value;
             const errorDiv = document.getElementById('error-message');
             
-            // 清除之前的错误信息
             errorDiv.classList.add('d-none');
             
-            // 验证是否为空
             if (!playerNumber) {
                 showError('请输入玩家数量');
                 return false;
             }
             
-            // 验证是否为数字
             const number = parseInt(playerNumber);
             if (isNaN(number)) {
                 showError('请输入有效的数字');
@@ -104,6 +99,7 @@
                 return false;
             }
             
+            // This is just a temparary limitation. Because i need to put the website on Render.
             if (number > 10) {
                 showError('玩家数量不能超过10');
                 return false;

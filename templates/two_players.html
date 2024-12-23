@@ -5,16 +5,13 @@
 {% block content %}
 <div class="container-fluid">
     <div class="row">
-        <!-- 左侧面板 -->
         <div class="col-md-4">
-            <!-- 效用表 -->
             <div class="card mb-4">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">效用矩阵 (Utility Matrix)</h5>
                     <button class="btn btn-sm btn-outline-primary" onclick="toggleEdit()">编辑效用值</button>
                 </div>
                 <div class="card-body">
-                    <!-- 默认显示的效用表 -->
                     <div id="utilityDisplay">
                         <table class="table table-bordered text-center">
                             <thead>
@@ -43,7 +40,6 @@
                         </table>
                     </div>
 
-                    <!-- 编辑表单 -->
                     <form id="utilityForm" action="{{ url_for('update_utility') }}" method="post" class="d-none">
                         <div class="table-responsive">
                             <table class="table table-bordered text-center">
